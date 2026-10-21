@@ -9,14 +9,18 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const popup = document.querySelector('#program-popup');
+  let popupTrigger = null;
   const closePopup = () => {
-    if (!popup) return;
+    if (!popup?.classList.contains('active')) return;
     popup.classList.remove('active');
     document.body.classList.remove('modal-open');
+    popupTrigger?.focus({ preventScroll: true });
+    popupTrigger = null;
   };
-  const openPopup = (id) => {
+  const openPopup = (id, trigger) => {
     const module = modules[id];
     if (!popup || !module) return;
+    popupTrigger = trigger;
     document.querySelector('#program-popup-number').textContent = `${String(id).padStart(2, '0')} — МОДУЛЬ`;
     document.querySelector('#program-popup-title').textContent = module.title;
     document.querySelector('#program-popup-count').textContent = `${module.topics.length} тем`;
@@ -28,9 +32,10 @@ document.addEventListener('DOMContentLoaded', () => {
     result.hidden = !module.result;
     popup.classList.add('active');
     document.body.classList.add('modal-open');
+    popup.querySelector('#program-popup-topics').scrollTop = 0;
     popup.querySelector('.popup-close').focus();
   };
-  document.querySelectorAll('[data-module]').forEach((button) => button.addEventListener('click', () => openPopup(button.dataset.module)));
+  document.querySelectorAll('[data-module]').forEach((button) => button.addEventListener('click', () => openPopup(button.dataset.module, button)));
   popup?.querySelector('.popup-close')?.addEventListener('click', closePopup);
   popup?.addEventListener('click', (event) => { if (event.target === popup) closePopup(); });
   document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closePopup(); });
