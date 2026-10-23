@@ -1,4 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // Keep the two updated anchor targets clear of the fixed header.
+  const siteHeader = document.querySelector('.header');
+  if (siteHeader) {
+    const updateHeaderHeight = () => document.documentElement.style.setProperty('--site-header-height', `${Math.ceil(siteHeader.getBoundingClientRect().height)}px`);
+    new ResizeObserver(updateHeaderHeight).observe(siteHeader);
+    updateHeaderHeight();
+  }
   const modules = {
     1: { title: 'Основи AI', topics: ['Як працює генеративний AI', 'Які AI-інструменти використовувати для різних задач', 'Як правильно ставити завдання AI', 'Промпти: структура, логіка та практика', 'Як отримувати стабільний результат, а не випадкову генерацію', 'AI у роботі: від ідеї до готового результату'] },
     2: { title: 'AI-контент', topics: ['Генерація ідей та контент-планів', 'Тексти для соцмереж та бізнесу', 'Сценарії для Reels, TikTok та YouTube', 'Hooks, CTA та структура контенту', 'Адаптація одного матеріалу під різні формати', 'AI для особистого бренду', 'Створення контент-системи за допомогою AI'] },
@@ -33,6 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     popup.classList.add('active');
     document.body.classList.add('modal-open');
     popup.querySelector('#program-popup-topics').scrollTop = 0;
+    popup.querySelector('.popup-card').scrollTop = 0;
     popup.querySelector('.popup-close').focus();
   };
   document.querySelectorAll('[data-module]').forEach((button) => button.addEventListener('click', () => openPopup(button.dataset.module, button)));
@@ -49,6 +57,19 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.mobile-nav a, .mobile-cta').forEach((link) => link.addEventListener('click', closeMenu));
 
   document.querySelectorAll('.faq-header-item').forEach((header) => header.addEventListener('click', () => header.closest('.faq-item')?.classList.toggle('active')));
+
+  // Match each FAQ panel to its content while preserving the existing transition.
+  const faqHeightObserver = new ResizeObserver((entries) => {
+    entries.forEach(({ target }) => {
+      const answer = target.closest('.faq-answer');
+      answer.style.setProperty('--faq-answer-height', `${Math.ceil(answer.scrollHeight)}px`);
+    });
+  });
+  document.querySelectorAll('#faq .faq-answer').forEach((answer) => {
+    answer.style.setProperty('--faq-answer-height', `${Math.ceil(answer.scrollHeight)}px`);
+    const content = answer.querySelector('p');
+    if (content) faqHeightObserver.observe(content);
+  });
 
   // Tariff panels are independent; desktop always shows their contents.
   const tariffMobile = window.matchMedia('(max-width:767px)');
@@ -236,10 +257,58 @@ document.addEventListener('DOMContentLoaded', () => {
     const digits = input.value.replace(/\D/g, '').slice(0, 9);
     input.value = digits.replace(/(\d{2})(\d{0,3})(\d{0,2})(\d{0,2})/, (_, a, b, c, d) => [a, b, c, d].filter(Boolean).join(' '));
   }));
-  document.querySelectorAll('form').forEach((form) => form.addEventListener('submit', (event) => {
+  // One shared notification; demo actions never send or retain form data.
+  const demoPopup = document.querySelector('#successPopup');
+  const demoClose = demoPopup?.querySelector('.demo-close');
+  let demoState = null;
+  const openDemo = (trigger) => {
+    if (!demoPopup || !demoClose || demoState) return;
+    const background = [...document.body.children]
+      .filter((node) => node !== demoPopup && !['SCRIPT', 'STYLE', 'LINK'].includes(node.tagName))
+      .map((node) => ({ node, inert: node.inert }));
+    demoState = {
+      trigger, background, x: window.scrollX, y: window.scrollY,
+      bodyStyle: document.body.style.cssText
+    };
+    const scrollbar = window.innerWidth - document.documentElement.clientWidth;
+    const padding = parseFloat(getComputedStyle(document.body).paddingRight) || 0;
+    Object.assign(document.body.style, {
+      position: 'fixed', top: `-${demoState.y}px`, left: `-${demoState.x}px`,
+      width: '100%', overflow: 'hidden', paddingRight: `${padding + scrollbar}px`
+    });
+    background.forEach(({ node }) => { node.inert = true; });
+    demoPopup.inert = false;
+    demoPopup.setAttribute('aria-hidden', 'false');
+    demoPopup.classList.add('show');
+    demoClose.focus({ preventScroll: true });
+  };
+  const closeDemo = () => {
+    if (!demoPopup || !demoState) return;
+    const state = demoState;
+    demoState = null;
+    demoPopup.classList.remove('show');
+    demoPopup.inert = true;
+    demoPopup.setAttribute('aria-hidden', 'true');
+    state.background.forEach(({ node, inert }) => { node.inert = inert; });
+    document.body.style.cssText = state.bodyStyle;
+    window.scrollTo({ left: state.x, top: state.y, behavior: 'instant' });
+    if (state.trigger?.isConnected) state.trigger.focus({ preventScroll: true });
+  };
+  document.querySelectorAll('[data-demo]').forEach((button) => button.addEventListener('click', (event) => {
     event.preventDefault();
-    document.querySelectorAll('.success-popup').forEach((success) => success.classList.add('show'));
+    openDemo(button);
   }));
-  document.querySelectorAll('.success-btn').forEach((button) => button.addEventListener('click', () => document.querySelectorAll('.success-popup').forEach((success) => success.classList.remove('show'))));
+  document.querySelectorAll('.cta-form').forEach((form) => form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    // Native constraint validation runs before this submit event.
+    openDemo(event.submitter || form.querySelector('[type="submit"]'));
+  }));
+  demoClose?.addEventListener('click', closeDemo);
+  demoPopup?.addEventListener('click', (event) => { if (event.target === demoPopup) closeDemo(); });
+  document.addEventListener('keydown', (event) => {
+    if (!demoState) return;
+    if (event.key === 'Escape') { event.preventDefault(); closeDemo(); }
+    else if (event.key === 'Tab') { event.preventDefault(); demoClose.focus({ preventScroll: true }); }
+  });
   if (window.lucide) window.lucide.createIcons();
 });
