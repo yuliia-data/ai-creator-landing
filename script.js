@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Tariff panels are independent; desktop always shows their contents.
-  const tariffMobile = window.matchMedia('(max-width:767px)');
+  const tariffMobile = window.matchMedia('(max-width:768px)');
   document.querySelectorAll('#pricing .tariff-summary').forEach((summary) => {
     const panel = document.getElementById(summary.getAttribute('aria-controls'));
     if (!panel) return;
@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (stories && storiesTrack && storyCards.length) {
     let storyIndex = 0;
     const storyCounter = stories.querySelector('.stories-counter');
-    const storiesMobile = window.matchMedia('(max-width:767px)');
+    const storiesMobile = window.matchMedia('(max-width:768px)');
     const reducedMotion = window.matchMedia('(prefers-reduced-motion:reduce)');
     const storyLimit = () => {
       const gap = parseFloat(getComputedStyle(storiesTrack).columnGap) || 0;
@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const worksGallery = document.querySelector('#reviews .works-grid');
   const worksCards = worksGallery ? [...worksGallery.querySelectorAll('.work-card')] : [];
   if (worksGallery && worksCards.length) {
-    const mobileDeck = window.matchMedia('(max-width:767px)');
+    const mobileDeck = window.matchMedia('(max-width:768px)');
     let activeWork = 0;
     let deckFrame = 0;
     const edgeControls = [];
