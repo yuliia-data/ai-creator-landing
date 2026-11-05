@@ -15,11 +15,41 @@ document.addEventListener('DOMContentLoaded', () => {
     6: { title: 'Монетизація', topics: ['Які AI-послуги можна продавати', 'Хто замовляє AI-контент', 'Як сформувати свою послугу', 'Як визначити ціну', 'Де шукати перших клієнтів', 'Як презентувати себе та отримати перше замовлення'] }
   };
 
+  // Share the demo notification's scroll lock across all modal interfaces.
+  let scrollLockCount = 0;
+  let scrollLockState;
+  const lockPageScroll = () => {
+    if (scrollLockCount === 0) {
+      scrollLockState = {
+        x: window.scrollX, y: window.scrollY, bodyStyle: document.body.style.cssText
+      };
+      const scrollbar = window.innerWidth - document.documentElement.clientWidth;
+      const padding = parseFloat(getComputedStyle(document.body).paddingRight) || 0;
+      Object.assign(document.body.style, {
+        position: 'fixed', top: `-${scrollLockState.y}px`, left: `-${scrollLockState.x}px`,
+        width: '100%', overflow: 'hidden', paddingRight: `${padding + scrollbar}px`
+      });
+    }
+    scrollLockCount += 1;
+    let released = false;
+    return () => {
+      if (released) return;
+      released = true;
+      scrollLockCount -= 1;
+      if (scrollLockCount !== 0) return;
+      const state = scrollLockState;
+      scrollLockState = null;
+      document.body.style.cssText = state.bodyStyle;
+      window.scrollTo({ left: state.x, top: state.y, behavior: 'instant' });
+    };
+  };
+
   const popup = document.querySelector('#program-popup');
   const isolateDialog = (dialog) => {
     const background = [...document.body.children]
       .filter(node => node !== dialog && !['SCRIPT', 'STYLE', 'LINK'].includes(node.tagName))
       .map(node => ({ node, inert: node.inert }));
+    const restoreScroll = lockPageScroll();
     background.forEach(({ node }) => { node.inert = true; });
     dialog.inert = false;
     dialog.setAttribute('aria-hidden', 'false');
@@ -27,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
       dialog.inert = true;
       dialog.setAttribute('aria-hidden', 'true');
       background.forEach(({ node, inert }) => { node.inert = inert; });
+      restoreScroll();
     };
   };
   let popupTrigger = null;
@@ -34,14 +65,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const closePopup = () => {
     if (!popup?.classList.contains('active')) return;
     popup.classList.remove('active');
-    document.body.classList.remove('modal-open');
     restoreProgramBackground();
     popupTrigger?.focus({ preventScroll: true });
     popupTrigger = null;
   };
   const openPopup = (id, trigger) => {
     const module = modules[id];
-    if (!popup || !module) return;
+    if (!popup || !module || popup.classList.contains('active')) return;
     popupTrigger = trigger;
     document.querySelector('#program-popup-number').textContent = `${String(id).padStart(2, '0')} — МОДУЛЬ`;
     document.querySelector('#program-popup-title').textContent = module.title;
@@ -54,10 +84,9 @@ document.addEventListener('DOMContentLoaded', () => {
     result.hidden = !module.result;
     popup.classList.add('active');
     restoreProgramBackground = isolateDialog(popup);
-    document.body.classList.add('modal-open');
     popup.querySelector('#program-popup-topics').scrollTop = 0;
     popup.querySelector('.popup-card').scrollTop = 0;
-    popup.querySelector('.popup-close').focus();
+    popup.querySelector('.popup-close').focus({ preventScroll: true });
   };
   document.querySelectorAll('[data-module]').forEach((button) => button.addEventListener('click', () => openPopup(button.dataset.module, button)));
   popup?.querySelector('.popup-close')?.addEventListener('click', closePopup);
@@ -331,16 +360,26 @@ document.addEventListener('DOMContentLoaded', () => {
     lightboxImage.src = image.currentSrc || image.src;
     lightboxImage.alt = image.closest('.work-card').querySelector('p').textContent.trim();
     lightbox.classList.add('active');
-    lightboxState = { trigger, restore: isolateDialog(lightbox) };
+    lightboxState = { trigger, image, restore: isolateDialog(lightbox) };
     lightbox.focus({ preventScroll: true });
   };
   const closeLightbox = () => {
     if (!lightboxState) return;
-    const { trigger, restore } = lightboxState;
+    const { trigger, image, restore } = lightboxState;
     lightboxState = null;
     lightbox.classList.remove('active');
     restore();
-    trigger?.focus({ preventScroll: true });
+    const canFocus = (element) => element?.isConnected && element.tabIndex >= 0
+      && !element.disabled && !element.closest('[inert], [hidden]')
+      && element.getClientRects().length > 0
+      && getComputedStyle(element).visibility === 'visible';
+    const card = image.closest('.work-card');
+    const gallery = card.closest('.works-grid');
+    const target = [
+      trigger, card.querySelector('.work-deck-zoom'), image,
+      ...gallery.querySelectorAll('.work-deck-zoom, .work-card img')
+    ].find(canFocus);
+    target?.focus({ preventScroll: true });
   };
   const desktopGallery = window.matchMedia('(min-width:821px)');
   document.querySelectorAll('.work-card img').forEach((image) => {
@@ -393,15 +432,8 @@ document.addEventListener('DOMContentLoaded', () => {
       .filter((node) => node !== demoPopup && !['SCRIPT', 'STYLE', 'LINK'].includes(node.tagName))
       .map((node) => ({ node, inert: node.inert }));
     demoState = {
-      trigger, background, x: window.scrollX, y: window.scrollY,
-      bodyStyle: document.body.style.cssText
+      trigger, background, restoreScroll: lockPageScroll()
     };
-    const scrollbar = window.innerWidth - document.documentElement.clientWidth;
-    const padding = parseFloat(getComputedStyle(document.body).paddingRight) || 0;
-    Object.assign(document.body.style, {
-      position: 'fixed', top: `-${demoState.y}px`, left: `-${demoState.x}px`,
-      width: '100%', overflow: 'hidden', paddingRight: `${padding + scrollbar}px`
-    });
     background.forEach(({ node }) => { node.inert = true; });
     demoPopup.inert = false;
     demoPopup.setAttribute('aria-hidden', 'false');
@@ -416,8 +448,7 @@ document.addEventListener('DOMContentLoaded', () => {
     demoPopup.inert = true;
     demoPopup.setAttribute('aria-hidden', 'true');
     state.background.forEach(({ node, inert }) => { node.inert = inert; });
-    document.body.style.cssText = state.bodyStyle;
-    window.scrollTo({ left: state.x, top: state.y, behavior: 'instant' });
+    state.restoreScroll();
     if (state.trigger?.isConnected) state.trigger.focus({ preventScroll: true });
   };
   document.querySelectorAll('[data-demo]').forEach((button) => button.addEventListener('click', (event) => {
