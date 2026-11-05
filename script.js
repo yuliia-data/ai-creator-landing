@@ -16,11 +16,26 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const popup = document.querySelector('#program-popup');
+  const isolateDialog = (dialog) => {
+    const background = [...document.body.children]
+      .filter(node => node !== dialog && !['SCRIPT', 'STYLE', 'LINK'].includes(node.tagName))
+      .map(node => ({ node, inert: node.inert }));
+    background.forEach(({ node }) => { node.inert = true; });
+    dialog.inert = false;
+    dialog.setAttribute('aria-hidden', 'false');
+    return () => {
+      dialog.inert = true;
+      dialog.setAttribute('aria-hidden', 'true');
+      background.forEach(({ node, inert }) => { node.inert = inert; });
+    };
+  };
   let popupTrigger = null;
+  let restoreProgramBackground;
   const closePopup = () => {
     if (!popup?.classList.contains('active')) return;
     popup.classList.remove('active');
     document.body.classList.remove('modal-open');
+    restoreProgramBackground();
     popupTrigger?.focus({ preventScroll: true });
     popupTrigger = null;
   };
@@ -38,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     result.textContent = module.result || '';
     result.hidden = !module.result;
     popup.classList.add('active');
+    restoreProgramBackground = isolateDialog(popup);
     document.body.classList.add('modal-open');
     popup.querySelector('#program-popup-topics').scrollTop = 0;
     popup.querySelector('.popup-card').scrollTop = 0;
@@ -46,17 +62,80 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('[data-module]').forEach((button) => button.addEventListener('click', () => openPopup(button.dataset.module, button)));
   popup?.querySelector('.popup-close')?.addEventListener('click', closePopup);
   popup?.addEventListener('click', (event) => { if (event.target === popup) closePopup(); });
-  document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closePopup(); });
+  document.addEventListener('keydown', (event) => {
+    if (!popup?.classList.contains('active')) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closePopup();
+    } else if (event.key === 'Tab') {
+      event.preventDefault();
+      const close = popup.querySelector('.popup-close');
+      const topics = popup.querySelector('.popup-topics');
+      (document.activeElement === close ? topics : close).focus();
+    }
+  });
 
   const burger = document.querySelector('.burger-btn');
   const menu = document.querySelector('.mobile-menu');
   const menuOverlay = document.querySelector('.mobile-overlay');
-  const closeMenu = () => { menu?.classList.remove('active'); menuOverlay?.classList.remove('active'); burger?.classList.remove('active'); };
-  burger?.addEventListener('click', () => { menu?.classList.toggle('active'); menuOverlay?.classList.toggle('active'); burger?.classList.toggle('active'); });
-  menuOverlay?.addEventListener('click', closeMenu);
-  document.querySelectorAll('.mobile-nav a, .mobile-cta').forEach((link) => link.addEventListener('click', closeMenu));
+  if (burger && menu && menuOverlay) {
+    const compactHeader = window.matchMedia('(width < 980px)');
+    const closeMenu = () => {
+      if (!menu.classList.contains('active')) return;
+      menu.classList.remove('active');
+      menuOverlay.classList.remove('active');
+      burger.classList.remove('active');
+      burger.setAttribute('aria-expanded', 'false');
+      menu.inert = true;
+      (compactHeader.matches ? burger : siteHeader.querySelector('.header-nav a'))?.focus({ preventScroll: true });
+    };
+    burger.addEventListener('click', () => {
+      if (menu.classList.contains('active')) return closeMenu();
+      menu.inert = false;
+      menu.classList.add('active');
+      menuOverlay.classList.add('active');
+      burger.classList.add('active');
+      burger.setAttribute('aria-expanded', 'true');
+      menu.querySelector('a')?.focus({ preventScroll: true });
+    });
+    menuOverlay.addEventListener('click', closeMenu);
+    menu.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
+    compactHeader.addEventListener('change', closeMenu);
+    document.addEventListener('keydown', event => {
+      if (!menu.classList.contains('active')) return;
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeMenu();
+      } else if (event.key === 'Tab') {
+        const controls = [burger, ...menu.querySelectorAll('a')];
+        const index = controls.indexOf(document.activeElement);
+        const direction = event.shiftKey ? -1 : 1;
+        event.preventDefault();
+        controls[(index + direction + controls.length) % controls.length].focus();
+      }
+    });
+  }
 
-  document.querySelectorAll('.faq-header-item').forEach((header) => header.addEventListener('click', () => header.closest('.faq-item')?.classList.toggle('active')));
+  document.querySelectorAll('.faq-item').forEach((item, index) => {
+    const header = item.querySelector('.faq-header-item');
+    const question = header.querySelector('h3');
+    const button = header.querySelector('button');
+    const answer = item.querySelector('.faq-answer');
+    question.id = `faq-question-${index + 1}`;
+    answer.id = `faq-answer-${index + 1}`;
+    button.setAttribute('aria-labelledby', question.id);
+    button.setAttribute('aria-controls', answer.id);
+    const syncFaq = () => {
+      const expanded = item.classList.contains('active');
+      button.setAttribute('aria-expanded', String(expanded));
+      answer.inert = !expanded;
+    };
+    header.addEventListener('click', () => {
+      item.classList.toggle('active');
+      syncFaq();
+    });
+    syncFaq();
+  });
 
   // Match each FAQ panel to its content while preserving the existing transition.
   const faqHeightObserver = new ResizeObserver((entries) => {
@@ -72,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Tariff panels are independent; desktop always shows their contents.
-  const tariffMobile = window.matchMedia('(max-width:768px)');
+  const tariffMobile = window.matchMedia('(max-width:820px)');
   document.querySelectorAll('#pricing .tariff-summary').forEach((summary) => {
     const panel = document.getElementById(summary.getAttribute('aria-controls'));
     if (!panel) return;
@@ -108,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (stories && storiesTrack && storyCards.length) {
     let storyIndex = 0;
     const storyCounter = stories.querySelector('.stories-counter');
-    const storiesMobile = window.matchMedia('(max-width:768px)');
+    const storiesMobile = window.matchMedia('(max-width:820px)');
     const reducedMotion = window.matchMedia('(prefers-reduced-motion:reduce)');
     const storyLimit = () => {
       const gap = parseFloat(getComputedStyle(storiesTrack).columnGap) || 0;
@@ -171,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const worksGallery = document.querySelector('#reviews .works-grid');
   const worksCards = worksGallery ? [...worksGallery.querySelectorAll('.work-card')] : [];
   if (worksGallery && worksCards.length) {
-    const mobileDeck = window.matchMedia('(max-width:768px)');
+    const mobileDeck = window.matchMedia('(max-width:820px)');
     let activeWork = 0;
     let deckFrame = 0;
     const edgeControls = [];
@@ -197,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
       zoom.setAttribute('aria-label', `Збільшити: ${caption}`);
       zoom.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5M3 3l6 6M21 3l-6 6M3 21l6-6M21 21l-6-6"/></svg>';
       zoom.hidden = true;
-      zoom.addEventListener('click', () => card.querySelector('img').click());
+      zoom.addEventListener('click', () => openLightbox(card.querySelector('img'), zoom));
       card.append(zoom);
       zoomControls.push(zoom);
     });
@@ -246,12 +325,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const lightbox = document.querySelector('#lightbox');
   const lightboxImage = lightbox?.querySelector('img');
-  document.querySelectorAll('.work-card img').forEach((image) => image.addEventListener('click', () => {
-    if (!lightbox || !lightboxImage) return;
-    lightboxImage.src = image.currentSrc || image.src; lightboxImage.alt = image.alt;
+  let lightboxState;
+  const openLightbox = (image, trigger) => {
+    if (!lightboxImage || lightboxState) return;
+    lightboxImage.src = image.currentSrc || image.src;
+    lightboxImage.alt = image.closest('.work-card').querySelector('p').textContent.trim();
     lightbox.classList.add('active');
-  }));
-  lightbox?.addEventListener('click', () => lightbox.classList.remove('active'));
+    lightboxState = { trigger, restore: isolateDialog(lightbox) };
+    lightbox.focus({ preventScroll: true });
+  };
+  const closeLightbox = () => {
+    if (!lightboxState) return;
+    const { trigger, restore } = lightboxState;
+    lightboxState = null;
+    lightbox.classList.remove('active');
+    restore();
+    trigger?.focus({ preventScroll: true });
+  };
+  const desktopGallery = window.matchMedia('(min-width:821px)');
+  document.querySelectorAll('.work-card img').forEach((image) => {
+    const card = image.closest('.work-card');
+    const syncImageControl = () => {
+      if (desktopGallery.matches) {
+        image.tabIndex = 0;
+        image.setAttribute('role', 'button');
+        image.setAttribute('aria-label', `Збільшити: ${card.querySelector('p').textContent.trim()}`);
+        image.setAttribute('aria-haspopup', 'dialog');
+      } else {
+        for (const attribute of ['tabindex', 'role', 'aria-label', 'aria-haspopup']) image.removeAttribute(attribute);
+      }
+    };
+    desktopGallery.addEventListener('change', syncImageControl);
+    syncImageControl();
+    image.addEventListener('click', () => openLightbox(image, desktopGallery.matches ? image : card.querySelector('.work-deck-zoom')));
+    image.addEventListener('keydown', event => {
+      if (!desktopGallery.matches || !['Enter', ' '].includes(event.key)) return;
+      event.preventDefault();
+      openLightbox(image, image);
+    });
+  });
+  lightbox?.addEventListener('click', closeLightbox);
+  document.addEventListener('keydown', event => {
+    if (!lightboxState) return;
+    if (event.key === 'Escape' || (event.target === lightbox && ['Enter', ' '].includes(event.key))) {
+      event.preventDefault();
+      closeLightbox();
+    } else if (event.key === 'Tab') {
+      event.preventDefault();
+      lightbox.focus({ preventScroll: true });
+    }
+  });
 
   document.querySelectorAll('.phone-input').forEach((input) => input.addEventListener('input', () => {
     const digits = input.value.replace(/\D/g, '').slice(0, 9);
@@ -260,9 +383,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // One shared notification; demo actions never send or retain form data.
   const demoPopup = document.querySelector('#successPopup');
   const demoClose = demoPopup?.querySelector('.demo-close');
+  const demoDescription = demoPopup?.querySelector('#demo-description');
+  const defaultDemoMessage = demoDescription?.textContent;
   let demoState = null;
-  const openDemo = (trigger) => {
+  const openDemo = (trigger, message = defaultDemoMessage) => {
     if (!demoPopup || !demoClose || demoState) return;
+    if (demoDescription) demoDescription.textContent = message;
     const background = [...document.body.children]
       .filter((node) => node !== demoPopup && !['SCRIPT', 'STYLE', 'LINK'].includes(node.tagName))
       .map((node) => ({ node, inert: node.inert }));
@@ -298,11 +424,20 @@ document.addEventListener('DOMContentLoaded', () => {
     event.preventDefault();
     openDemo(button);
   }));
-  document.querySelectorAll('.cta-form').forEach((form) => form.addEventListener('submit', (event) => {
-    event.preventDefault();
-    // Native constraint validation runs before this submit event.
-    openDemo(event.submitter || form.querySelector('[type="submit"]'));
-  }));
+  document.querySelectorAll('.cta-form').forEach((group) => {
+    const button = group.querySelector('.cta-submit');
+    const fields = [...group.querySelectorAll('input')];
+    const showFormDemo = () => {
+      if (!fields.every(field => field.reportValidity())) return;
+      openDemo(button, 'Це демонстраційний проєкт SOVA WEB для портфоліо. Реєстрація на курс недоступна, а дані форми не надсилаються.');
+    };
+    button.addEventListener('click', showFormDemo);
+    group.addEventListener('keydown', event => {
+      if (event.key !== 'Enter' || event.isComposing || !fields.includes(event.target)) return;
+      event.preventDefault();
+      showFormDemo();
+    });
+  });
   demoClose?.addEventListener('click', closeDemo);
   demoPopup?.addEventListener('click', (event) => { if (event.target === demoPopup) closeDemo(); });
   document.addEventListener('keydown', (event) => {
@@ -310,5 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (event.key === 'Escape') { event.preventDefault(); closeDemo(); }
     else if (event.key === 'Tab') { event.preventDefault(); demoClose.focus({ preventScroll: true }); }
   });
-  if (window.lucide) window.lucide.createIcons();
+  const renderIcons = () => window.lucide?.createIcons();
+  if (window.lucide) renderIcons();
+  else document.querySelector('#lucide-script')?.addEventListener('load', renderIcons, { once: true });
 });

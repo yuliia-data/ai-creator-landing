@@ -4,13 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Creator Lab</title>
+    <meta name="description" content="Creator Lab — демонстраційний лендинг курсу з AI-креативу. Дізнайся про програму, формати навчання та приклади робіт.">
+    <meta property="og:title" content="Creator Lab">
+    <meta property="og:description" content="Creator Lab — демонстраційний лендинг курсу з AI-креативу. Дізнайся про програму, формати навчання та приклади робіт.">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="uk_UA">
+    <meta property="og:url" content="https://aicreator-landing.netlify.app/">
+    <meta property="og:image" content="https://aicreator-landing.netlify.app/images/og-creator-lab.webp">
+    <meta property="og:image:width" content="1672">
+    <meta property="og:image:height" content="941">
+    <link rel="canonical" href="https://aicreator-landing.netlify.app/">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
 
+    <link rel="stylesheet" href="style.css?v=targeted-loading">
+    <link rel="preload" as="image" href="images/hero768.webp" media="(max-width:820px)" fetchpriority="high">
+    <link rel="preload" as="image" href="images/hero1024.webp" media="(1000px <= width <= 1100px)" fetchpriority="high">
+    <link rel="preload" as="image" href="images/hero-bg.webp" media="(820px < width < 1000px), (width > 1100px)" fetchpriority="high">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="style.css?v=author-quote-20261027">
-
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script id="lucide-script" src="https://unpkg.com/lucide@1.68.0/dist/umd/lucide.min.js" async></script>
 </head>
 <body>
    
@@ -22,7 +38,7 @@
 
         <a href="#" class="logo">
 
-            <img src="images/logo.png" alt="Creator Lab Logo" class="logo-img">
+            <img src="images/logo-128.png" alt="Creator Lab Logo" class="logo-img">
 
             <span class="logo-text">
                 CREATOR LAB
@@ -40,7 +56,7 @@
 
             <a href="#pricing">Ціна</a>
 
-            <a href="#faq">FAQ</a>
+            <a href="#faq">Часті питання</a>
 
         </nav>
 
@@ -48,11 +64,11 @@
             Забронювати місце
         </a>
 
-        <a href="https://t.me/sovaweb_lab" target="_blank" class="telegram-menu" rel="noopener noreferrer">
-                <img src="images/telegram.png?v=20261024" alt="">
+        <a href="https://t.me/sovaweb_lab" target="_blank" class="telegram-menu" rel="noopener noreferrer" aria-label="Написати в Telegram">
+                <img src="images/telegram-96.png" alt="">
         </a>
 
-        <button class="burger-btn" aria-label="Відкрити меню">
+        <button class="burger-btn" type="button" aria-label="Відкрити меню" aria-expanded="false" aria-controls="mobile-menu">
 
             <span></span>
             <span></span>
@@ -68,7 +84,7 @@
 
     <div class="mobile-overlay"></div>
 
-        <aside class="mobile-menu">
+        <aside class="mobile-menu" id="mobile-menu" inert>
 
             <nav class="mobile-nav">
 
@@ -80,7 +96,7 @@
 
                 <a href="#pricing">Ціна</a>
 
-                <a href="#faq">Питання</a>
+                <a href="#faq">Часті питання</a>
 
             </nav>
 
@@ -96,6 +112,7 @@
     
 <!-- HERO -->
 
+<main>
 <section class="hero">
 
     <div class="hero-content">
@@ -392,16 +409,14 @@
 
                 <div class="card-content">
 
-                    <h3>Пошук клієнтів</h3>
+                    <h3>Монетизація AI-навичок</h3>
 
                     <span class="card-divider"></span>
 
                     <p>
-                        <span class="skills-copy-desktop">Навчитися презентувати свої послуги,
-                        знаходити замовників та робити перші
-                        кроки до роботи з клієнтами.</span>
-                        <span class="skills-copy-mobile">Презентувати свої послуги та знаходити перших замовників.</span>
+                        Навчитися презентувати свої послуги, знаходити замовників і перетворювати AI-навички на перші оплачувані проєкти.
                     </p>
+                    <small class="plan-availability">PREMIUM · VIP</small>
 
                 </div>
 
@@ -416,7 +431,7 @@
     <div class="creator-club">
 
         <div class="creator-club-icon">
-            <img src="images/club.png" alt="">
+            <img src="images/club-450.png" alt="">
         </div>
 
         <div class="creator-club-content">
@@ -433,6 +448,7 @@
                 <span class="skills-copy-desktop">Підтримка, обмін роботами, відповіді на запитання
                 та нові AI-можливості після проходження уроків.</span>
                 <span class="skills-copy-mobile">Підтримка, обмін роботами, відповіді на запитання та нові AI-можливості.</span>
+                <small class="creator-club-availability">Доступно в тарифах PREMIUM та VIP.</small>
             </p>
 
         </div>
@@ -539,6 +555,7 @@
                     <h3>Монетизація</h3>
                     <span>6 тем</span>
                     <button class="module-topics" type="button" data-module="6">Переглянути теми <b>→</b></button>
+                    <small class="plan-availability">PREMIUM · VIP</small>
                 </div>                    
             </div>
 
@@ -560,7 +577,7 @@
     <div class="includes-container">
 
         <div class="includes-image">
-            <img src="images/cube.png" alt="">
+            <img src="images/cube.webp" alt="">
         </div>
 
         <div class="includes-content">
@@ -714,7 +731,7 @@
             </svg>
 
             <img
-                src="images/ai-creator-hub.png"
+                src="images/ai-creator-hub.webp"
                 alt="AI Creator"
             >
 
@@ -814,7 +831,7 @@
         <div class="clients-conclusion">
             <div class="clients-divider" aria-hidden="true"></div>
             <p class="clients-conclusion-title">І це лише частина можливостей!</p>
-            <p class="clients-conclusion-text">На Creator Lab ти відкриєш ще більше напрямів, у яких можна застосовувати AI-навички.</p>
+            <p class="clients-conclusion-text">На Creator Lab ти відкриєш ще більше напрямів, у яких можна застосовувати <span class="ai-skill-term">AI-навички</span>.</p>
         </div>
     </div>
 </section>
@@ -834,22 +851,22 @@
         <div class="works-grid">
 
             <div class="work-card">
-                <img src="images/art1.png" alt="">
+                <img src="images/art1.webp" alt="">
                 <p>AI-портрет для бренду</p>
             </div>
 
             <div class="work-card">
-                <img src="images/art2.png" alt="">
+                <img src="images/art2.webp" alt="">
                 <p>AI-персонаж</p>
             </div>
 
             <div class="work-card">
-                <img src="images/art3.png" alt="">
+                <img src="images/art3.webp" alt="">
                 <p>AI-рекламний креатив</p>
             </div>
 
             <div class="work-card">
-                <img src="images/art4.png" alt="">
+                <img src="images/art4.webp" alt="">
                 <p>AI-візуалізація архітектури</p>
             </div>
 
@@ -862,7 +879,7 @@
 
         <div class="reviews-divider" aria-hidden="true"></div>
         <h2 class="stories-heading" id="stories">Історії учасників Creator Lab</h2>
-        <p class="stories-subtitle">У кожного свій досвід і своя мета. Подивись, як AI-навички можуть відкрити нові можливості.</p>
+        <p class="stories-subtitle">У кожного свій досвід і своя мета. Подивись, як <span class="ai-skill-term">AI-навички</span> можуть відкрити нові можливості.</p>
 
         <div class="reviews-slider">
 
@@ -1205,16 +1222,16 @@
     <div class="author-container">
         <div class="author-heading">
             <p class="author-eyebrow">ХТО СТОЇТЬ ЗА CREATOR LAB</p>
-            <h2>Привіт! Я <span>Марія</span> — засновниця Creator Lab.</h2>
+            <h2>Привіт!<br class="author-mobile-break"> Я <span>Марія</span> — засновниця<br class="author-mobile-break"> Creator Lab.</h2>
         </div>
         <div class="author-photo">
-            <img src="images/creator-maria.png" alt="Марія, засновниця Creator Lab, у творчій студії з командою на задньому плані" width="1374" height="1145" loading="lazy" decoding="async">
+            <img src="images/creator-maria.webp" alt="Марія, засновниця Creator Lab, у творчій студії з командою на задньому плані" width="1374" height="1145" loading="lazy" decoding="async">
         </div>
         <div class="author-story">
             <p class="author-intro">Створюю AI-контент, розвиваю власну команду та навчаю тих, хто хоче втілювати ідеї в реальні проєкти.</p>
             <p>Усе почалося з цікавості: а що, якщо AI допоможе втілювати ідеї, на які раніше не вистачало часу чи можливостей?</p>
             <p>Я експериментувала, вчилася на помилках, брала перші замовлення. Проєктів ставало більше, і згодом навколо мене зібралася команда людей, які теж люблять вигадувати й створювати.</p>
-            <p>Так народився <strong>Creator Lab</strong> — новий напрям мого бізнесу, де поєдналися навчання, практика та спільнота творчих людей.</p>
+            <p>Так народився <strong>Creator Lab</strong> — новий напрям мого бізнесу, де поєдналися навчання, практика та спільнота творчих людей. Для деяких учасників це також можливість долучитися до команди Creator Lab та працювати над реальними проєктами.</p>
         </div>
         <div class="author-closing">
             <span class="author-quote-mark" aria-hidden="true">“</span>
@@ -1243,19 +1260,20 @@
                 <span class="tariff-price">
                     <span class="tariff-price-original"><del>17 000 ₴</del><span class="tariff-discount">−30%</span></span>
                     <span class="tariff-price-current">11 900 ₴</span>
+                    <span class="tariff-installment">або 3 платежі по 3 967 ₴*</span>
                 </span>
                 <span class="tariff-access">Доступ: 3 місяці</span>
                 <span class="faq-toggle" aria-hidden="true"><span></span></span>
             </button>
             <div class="tariff-panel" id="basic-panel" role="region" aria-labelledby="basic-summary">
                 <div class="tariff-panel-inner"><div class="tariff-details">
-                    <ul><li>5 модулів · 35 тем</li><li>Практичні завдання</li><li>Шаблони та промпти</li><li>Загальна група учасників</li><li>Навчання у власному темпі</li><li>Іменний сертифікат після завершення навчання</li></ul>
+                    <ul><li>5 модулів · 35 тем</li><li>Без модуля «Монетизація».</li><li>Практичні завдання</li><li>Шаблони та промпти</li><li>Загальна група учасників</li><li>Навчання у власному темпі</li><li>Іменний сертифікат після завершення навчання</li></ul>
                     <button class="tariff-btn" type="button" data-demo aria-haspopup="dialog" aria-controls="successPopup">Обрати BASIC</button>
                 </div></div>
             </div>
         </article>
         <article class="tariff-card featured">
-            <span class="tariff-popular">НАЙПОПУЛЯРНІШИЙ</span>
+            <span class="tariff-popular">Рекомендуємо</span>
             <button class="tariff-summary" type="button" id="premium-summary" aria-expanded="true" aria-controls="premium-panel">
                 <span class="tariff-label">PREMIUM</span>
                 <span class="tariff-title">Навчання з підтримкою</span>
@@ -1263,13 +1281,14 @@
                 <span class="tariff-price">
                     <span class="tariff-price-original"><del>24 000 ₴</del><span class="tariff-discount">−30%</span></span>
                     <span class="tariff-price-current">16 800 ₴</span>
+                    <span class="tariff-installment">або 6 платежів по 2 800 ₴</span>
                 </span>
                 <span class="tariff-access">Доступ: 6 місяців</span>
                 <span class="faq-toggle" aria-hidden="true"><span></span></span>
             </button>
             <div class="tariff-panel" id="premium-panel" role="region" aria-labelledby="premium-summary">
                 <div class="tariff-panel-inner"><div class="tariff-details">
-                    <ul><li>Усе з BASIC + модуль з монетизації</li><li>6 модулів · 41 тема</li><li>Creator Club</li><li>Перевірка практичних завдань</li><li>Групові відеозустрічі з ментором</li><li>Розбір робіт і відповіді на запитання</li><li>Іменний сертифікат після завершення навчання</li></ul>
+                    <ul><li>Додатково до BASIC — модуль «Монетизація»</li><li>6 модулів · 41 тема</li><li>Creator Club</li><li>Перевірка практичних завдань</li><li>Групові відеозустрічі з ментором</li><li>Розбір робіт і відповіді на запитання</li><li>Іменний сертифікат після завершення навчання</li></ul>
                     <button class="tariff-btn" type="button" data-demo aria-haspopup="dialog" aria-controls="successPopup">Обрати PREMIUM</button>
                 </div></div>
             </div>
@@ -1282,6 +1301,7 @@
                 <span class="tariff-price">
                     <span class="tariff-price-original"><del>35 000 ₴</del><span class="tariff-discount">−30%</span></span>
                     <span class="tariff-price-current">24 500 ₴</span>
+                    <span class="tariff-installment">або 12 платежів по 2 042 ₴*</span>
                 </span>
                 <span class="tariff-access">Доступ: 12 місяців</span>
                 <span class="faq-toggle" aria-hidden="true"><span></span></span>
@@ -1294,6 +1314,7 @@
             </div>
         </article>
     </div>
+    <p class="tariff-installment-note">* Сума останнього платежу може відрізнятися через округлення.</p>
 
 </section>
 
@@ -1515,18 +1536,44 @@
 
                 <div class="faq-answer">
                     <p>
-                        Так! Ти можеш обрати оплату частинами на термін від 3 до 12 місяців незалежно від тарифу. Це дозволяє розподілити вартість навчання на зручні щомісячні платежі.
+                        Так, кількість щомісячних платежів залежить від тарифу: 3 для BASIC, 6 для PREMIUM і 12 для VIP. Суми платежів наведені під цінами тарифів.
                     </p>
                 </div>
 
             </div>
 
+            <div class="faq-item">
+                <div class="faq-header-item">
+                    <div class="faq-left">
+                        <div class="faq-icon-box">
+                            <img src="images/refund.png" alt="">
+                        </div>
+                        <h3>Чи можна повернути кошти за навчання?</h3>
+                    </div>
+                    <button class="faq-toggle" type="button"><span></span></button>
+                </div>
+                <div class="faq-answer">
+                    <p>Так, протягом 7 днів після оплати можна подати запит на повернення коштів, якщо ти пройшов не більше одного модуля. Детальні умови зазначені в Політиці повернення.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-header-item">
+                    <div class="faq-left">
+                        <div class="faq-icon-box"><img src="images/ai-payment.png" alt=""></div>
+                        <h3>Чи потрібні платні AI-сервіси для навчання?</h3>
+                    </div>
+                    <button class="faq-toggle" type="button"><span></span></button>
+                </div>
+                <div class="faq-answer">
+                    <p>Для більшості завдань можна використовувати безкоштовні інструменти або пробні версії. Для окремих можливостей можуть знадобитися платні підписки. На курсі розглядаються також доступні альтернативи.</p>
+                </div>
+            </div>
         </div>
 
         <div class="faq-cta">
 
             <div class="faq-cta-image">
-                <img src="images/brain-question.png" alt="">
+                <img src="images/brain-question.webp" alt="">
             </div>
 
             <div class="faq-cta-content">
@@ -1546,7 +1593,7 @@
                         target="_blank"
                         class="hero-btn faq-btn" rel="noopener noreferrer">
 
-                        <img src="images/telegram.png?v=20261024" alt="">
+                        <img src="images/telegram-96.png" alt="">
 
                         <span>Написати в Telegram</span>
 
@@ -1578,7 +1625,7 @@
 
             <p class="cta-subtitle">
                 Зроби перший крок до нової професії та<br>
-                почни заробляти на штучному інтелекті.
+                почни створювати власні AI-проєкти.
             </p>
 
             <div class="cta-features">
@@ -1635,7 +1682,7 @@
                     Обери свій формат навчання та зроби перший крок до AI-навичок.
                 </p>
 
-                <form class="cta-form">
+                <div class="cta-form" role="group" aria-label="Демонстраційна форма заявки">
 
                     <div class="input-box">
 
@@ -1643,7 +1690,7 @@
 
                         <input
                             type="text"
-                            name="name"
+                            aria-label="Ваше ім’я"
                             placeholder="Ваше ім'я"
                             autocomplete="name"
                             required>
@@ -1658,7 +1705,7 @@
 
                         <input
                             type="tel"
-                            name="phone"
+                            aria-label="Номер телефону"
                             class="phone-input"
                             placeholder="XX XXX XX XX"
                             autocomplete="tel"
@@ -1667,11 +1714,11 @@
 
                     </div>
 
-                    <button type="submit" class="hero-btn cta-submit">
+                    <button type="button" class="hero-btn cta-submit">
                         Забронювати місце зі знижкою
                     </button>
 
-                </form>
+                </div>
 
                 <div class="cta-security">
 
@@ -1693,7 +1740,7 @@
                 target="_blank"
                 class="telegram-btn" rel="noopener noreferrer">
 
-                <img src="images/telegram.png?v=20261024" alt="">
+                <img src="images/telegram-96.png" alt="">
 
                 <span>Напиши нам в Telegram</span>
 
@@ -1709,9 +1756,11 @@
 
 </section>
 
+</main>
+
 <!-- POPUP -->
 
-<div class="popup-overlay" id="program-popup">
+<div class="popup-overlay" id="program-popup" inert aria-hidden="true">
 
     <div class="popup-window" role="dialog" aria-modal="true" aria-labelledby="program-popup-title">
 
@@ -1721,7 +1770,7 @@
             <p class="popup-kicker" id="program-popup-number">01 — МОДУЛЬ</p>
             <h3 class="popup-title" id="program-popup-title"></h3>
             <p class="popup-count" id="program-popup-count"></p>
-            <ol class="popup-topics" id="program-popup-topics"></ol>
+            <ol class="popup-topics" id="program-popup-topics" tabindex="0"></ol>
             <p class="popup-result" id="program-popup-result" hidden></p>
 
         </div>
@@ -1750,7 +1799,7 @@
 <footer class="site-footer">
     <div class="container footer-top">
         <a href="#" class="logo footer-logo">
-            <img src="images/logo.png" alt="Creator Lab Logo" class="logo-img">
+            <img src="images/logo-128.png" alt="Creator Lab Logo" class="logo-img">
             <span class="logo-text">CREATOR LAB</span>
         </a>
         <div class="footer-legal" aria-label="Юридична інформація">
@@ -1806,13 +1855,13 @@
     </div>
 </footer>
 
-<div class="lightbox" id="lightbox">
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Збільшене зображення" tabindex="-1" inert aria-hidden="true">
 
     <img src="" alt="">
 
 </div>
 
-<script src="script.js?v=tablet-controls-20261027"></script>
+<script src="script.js?v=targeted-loading"></script>
 
 </body>
 </html>
